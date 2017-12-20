@@ -8,7 +8,9 @@
     <meta name="description" content="@yield('description', '书虫网为广大网络书虫们免费提供了当前最火热的网络小说，拥有最佳的阅读体验，是广大网络小说爱好者们必不可少小说阅读网。')" />
     @yield('meta')
     <link rel="shortcut icon" href="/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="{{ elixir('dist/css/all.css') }}" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/main.css" />
+    {{--<link rel="stylesheet" type="text/css" href="{{ elixir('dist/css/all.css') }}" />--}}
     @yield('link')
     @if(isset($js))
     <script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
@@ -42,7 +44,7 @@
         <!-- /main -->
         @include('common.footer')
     </div>
-    <script type="text/javascript" src="{{ elixir('dist/js/all.js') }}"></script>
+    {{--<script type="text/javascript" src="{{ elixir('dist/js/all.js') }}"></script>--}}
     <script type="text/javascript">
         var timestamp = Date.parse(new Date());
         var read_history = $.jStorage.get('history', []);

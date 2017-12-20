@@ -3,18 +3,18 @@
 namespace App\Jobs;
 
 use App\Jobs\Job;
+use App\Repositories\Snatch\Biquge;
 use App\Repositories\Snatch\Snatch;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Log;
 
-class SnatchInit extends Job implements ShouldQueue
+class SnatchFix extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
-    private $link;
-    private $source;
+    private $source_link;
 
     /**
      * Create a new job instance.
@@ -22,10 +22,9 @@ class SnatchInit extends Job implements ShouldQueue
      * @param $link
      * @param string $source
      */
-    public function __construct($link, $source='biquge')
+    public function __construct($source_link)
     {
-        $this->link = $link;
-        $this->source = $source;
+        $this->source_link = $source_link;
     }
 
     /**
@@ -35,9 +34,10 @@ class SnatchInit extends Job implements ShouldQueue
      */
     public function handle()
     {
+        $handle = new Biquge();
         Log::info('----- STARTING THE PROCESS FOR INIT NOVEL FROM LINK:'.$this->link. '-----');
         $dtStart = microtime_float();
-        $instance = ucfirst($this->source);
+        $handle->getContent();
         $novel = $instance::init($this->link);
         if($novel) {
             Log::info("小说[$novel->id]:[$novel->name] 已初始化完毕");

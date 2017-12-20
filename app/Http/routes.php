@@ -85,3 +85,5 @@ Route::any('wechat', 'WechatController@serve');
 //wechat user
 Route::get('users', 'UserController@users');
 Route::get('user/{openId}', 'UserController@user');
+
+Route::get('console/fillcontent', 'ConsoleController@fillContent');

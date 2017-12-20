@@ -327,8 +327,8 @@ Class Biquge extends Snatch implements SnatchInterface
      * @param Novel $novel
      * @return array|mixed
      */
-    public function snatch(Novel $novel)
-    {
+    public function snatchold(Novel $novel)
+    {ini_set('memory_limit', '1024M');
         $novel_html = $this->send(self::DOMAIN . $novel->source_link, 'GET', false, 'utf-8');
         if (!$novel_html) {
             return false;
@@ -367,6 +367,59 @@ Class Biquge extends Snatch implements SnatchInterface
                     'source_link' => self::DOMAIN . $link,
                     'name' => $name,
                     'content' => @$temp[$biquge_id],
+                    'novel_id' => $novel->id,
+                    'created_at' => $now,
+                    'updated_at' => $now
+                ];
+            }
+            unset($contents);
+            Chapter::insert($value_array);
+        }
+        $novel->chapter_num = $total_num;
+        $novel->save();
+        return ['code' => 1];
+    }
+
+    public function snatch(Novel $novel)
+    {ini_set('memory_limit', '1024M');
+        $novel_html = $this->send(self::DOMAIN . $novel->source_link, 'GET', false, 'utf-8');
+        if (!$novel_html) {
+            return false;
+        }
+        $chapter_list = $this->getChapterList($novel_html);
+        if (!$chapter_list[1]) {
+            Log::error('getChapterList failed');
+            return ['code' => 0];
+        }
+
+        $total_num = count($chapter_list[1]);
+        $num = ceil($total_num / $this->page_size);
+
+        for ($i = 0; $i < $num; $i++) {
+            $splice_list = [];
+            $splice_list[1] = array_slice($chapter_list[1], $i * $this->page_size, $this->page_size);
+            $splice_list[2] = array_slice($chapter_list[2], $i * $this->page_size, $this->page_size);
+//            $contents = $this->multi_send_test($splice_list[1], self::DOMAIN . $novel->source_link, $this->page_size, 'utf-8');
+//            $temp = [];
+//            foreach ($contents as $k => $html) {
+//                preg_match('/addBookMark\((\d+),.*?\)/s', $html, $read_match);
+//                if (@$read_match[1]) {
+//                    $biquge_id = $read_match[1];
+//                    $content = $this->getChapterContent($html);
+//                    $temp[$biquge_id] = $content;
+//                }
+//            }
+            $value_array = [];
+            $now = Carbon::now();
+            foreach ($splice_list[2] as $k => $name) {
+                $biquge_idArr = explode('.', $splice_list[1][$k]);
+                $biquge_idChunk = explode('/', $biquge_idArr[0]);
+                $biquge_id = end($biquge_idChunk);
+                $link = $splice_list[1][$k];
+                $value_array[] = [
+                    'source_link' => self::DOMAIN . $link,
+                    'name' => $name,
+                    'content' =>'',
                     'novel_id' => $novel->id,
                     'created_at' => $now,
                     'updated_at' => $now
@@ -544,4 +597,13 @@ Class Biquge extends Snatch implements SnatchInterface
         return @$content[1];
     }
 
+
+    public function getContent($novel){
+        $html = $this->send( $novel->source_link, 'GET', false, 'utf-8');
+        if($html){
+            $content = $this->getChapterContent($html);
+            $novel->content = $content;
+            $novel->save();
+        }
+    }
 }

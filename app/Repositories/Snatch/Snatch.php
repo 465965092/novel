@@ -37,6 +37,8 @@ class Snatch
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         if ($type == 'POST') {
             curl_setopt($ch, CURLOPT_POST, 1);
             $params && curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
@@ -49,7 +51,7 @@ class Snatch
             return false;
         }
         if ($httpCode !== 200) {
-            Log::error("链接: {$url}, curl code不等于200，code: " . curl_errno($ch) . "请注意查看");
+            Log::error("链接: {$url}, curl code不等于200，code: " . curl_errno($ch) . "请注意查看".curl_error($ch));
             return false;
         }
         curl_close($ch);
